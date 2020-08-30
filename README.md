@@ -43,7 +43,7 @@ Accuracy and the confusion matrix is considered as the evaluation metric. The mo
 
 The accuracy for C5.0 79% which is higher compared to SVM accuracy of 78%. Though, the accuracy is near to each other’s prediction the confusion matrix of C5.0 is better. Hence C5.0 is considered as the best model for the diabetes prediction.
 
-![](Visualization/Result%20Comparison.png)
+![](Visualization/C5.0.png)
 
 The above image shows the highest iteration which hits the best accuracy is 18. Hence the 18th iteration is fixed as the best optimization parameter for this model. The model was trained on the 7:3 of training and testing dataset.
 
