@@ -37,20 +37,14 @@ chart.Correlation(diab[,-9], histogram=TRUE, col="grey10", pch=1, main="Chart Co
 #By ggpairs, the figure Pregnancies, Glucose, Age seems different according to diabetes outcome.
 library(ggplot2)
 library(GGally)
-ggpairs(diab, aes(color=diabetes, alpha=0.75), lower=list(continuous="smooth"))+
-  theme_bw()+
-  
-  labs(title="Correlation Plot of Variance(diabetes)")+
-  
-  theme(plot.title=element_text(face='bold',color='black',hjust=0.5,size=12))
+ggpairs(diab, aes(color=diabetes, alpha=0.75), lower=list(continuous="smooth"))+theme_bw()+ labs(title="Correlation Plot of Variance(diabetes)")+
+theme(plot.title=element_text(face='bold',color='black',hjust=0.5,size=12))
 
 #GGCORR Plot
 #By ggcorr, we can see high correlation in below variance
 #Pregnancies & Age : 0.5 => About 50% correlated to each other
 #SkinThickness - &Insulin, &BMI : 0.4 => About 40% correlated to each other
-ggcorr(diab[,-9], name = "corr", label = TRUE)+
-theme(legend.position="none")+
-labs(title="Correlation Plot of Variance")+
+ggcorr(diab[,-9], name = "corr", label = TRUE)+theme(legend.position="none")+labs(title="Correlation Plot of Variance")+ 
 theme(plot.title=element_text(face='bold',color='black',hjust=0.5,size=12))
 
 #END Section 2
@@ -151,18 +145,17 @@ cmTrain_imp_c50# train Data confusion matrix
 pre_imp_c50 <- predict(learn_imp_c50, test[,-9])
 cm_imp_c50 <- confusionMatrix(pre_imp_c50, test$diabetes)
 cm_imp_c50
+
 #Summary/Compare both ML
 col <- c("#ed3b3b", "#0099ff")
 par(mfrow=c(1,2))
 fourfoldplot(cm_imp_svm$table, color = col, conf.level = 0, margin = 1, main=paste("Tune SVM (",round(cm_imp_svm$overall[1]*100),"%)",sep=""))
 fourfoldplot(cm_imp_c50$table, color = col, conf.level = 0, margin = 1, main=paste("Tune C5.0 (",round(cm_imp_c50$overall[1]*100),"%)",sep=""))
+
 #Select the best prediction model according to higher accuracy.
 opt_predict <- c(cm_imp_c50$overall[1], cm_imp_svm$overall[1])
-
 names(opt_predict) <- c("tune_c50","tune_svm")
-
 best_predict_model <- subset(opt_predict, opt_predict==max(opt_predict))
-
 best_predict_model
 
 #End Section 3
@@ -177,6 +170,7 @@ kable(Y)                        ## Diabetes: Yes
 N <- test[2,]                   ## 18th patient          
 
 kable(N)                        ## Diabetes: No
+
 #4.1.1.2 Since done with testing/ shall remove the diabetes column for testing.
 Y$diabetes <- NULL
 
@@ -184,11 +178,8 @@ N$diabetes <- NULL
 #4.1.2 Patient Diabetes Fucntion
 #4.1.2.1 Create a function
 patient_diabetes_predict <- function(new, method=learn_imp_svm) {
-  
-  new_pre <- predict(method, new)
-  
-  new_res <- as.character(new_pre)
-  
+new_pre <- predict(method, new)
+new_res <- as.character(new_pre)
   return(paste("Result: ", new_res, sep=""))
   
 }
@@ -198,6 +189,7 @@ patient_diabetes_predict <- function(new, method=learn_imp_svm) {
 #With default Model: SVM
 patient_diabetes_predict(Y) 
 patient_diabetes_predict(N) 
+
 #With C5.0
 patient_diabetes_predict(Y,learn_imp_c50)
 patient_diabetes_predict(N,learn_imp_c50)
@@ -205,7 +197,6 @@ patient_diabetes_predict(N,learn_imp_c50)
 #4.2 Predict Test dataset’s Diabetes
 #using Tuned C5.0 Model
 sub <- data.frame(orgin_result = test$diabetes, predict_result = pre_imp_c50, correct = ifelse(test$diabetes == pre_imp_c50, "True", "False"))
-
 kable(head(sub,10))
 prop.table(table(sub$correct))
 #End Section 4
@@ -217,32 +208,24 @@ prop.table(table(sub$correct))
 #If patient’s factor of diabetes is above diabetes:yes factor average, I colored it with red line.
 #5.1 Create Vis Function
 diabetes_summary <- function(new,data) {
-  
-  
-  
+
   ## [a] Reshape the new dataset for ggplot
   
-  library(reshape2)
-  
+  library(reshape2)  
   m_train <- melt(data, id="diabetes")
-  
   m_new <- melt(new)
   
   ## [b] Save mean of Malignant value
   
   library(dplyr)
-  
   mal_mean <- subset(data, diabetes=="Yes", select=-9)
-  
   mal_mean <- apply(mal_mean,2,mean)
   
   ## [c] highlight with red colors line
   
   library(stringr)
-  
   mal_col <- ifelse((round(m_new$value,3) > mal_mean), "red", "black")
   
-
   ## [d] Save titles : Main title, Patient Diagnosis
   
   title <- paste("Diabetes Diagnosis Plot (", patient_diabetes_predict(new),")",sep="")
@@ -250,15 +233,10 @@ diabetes_summary <- function(new,data) {
   ## ★[f] View plots highlighting values above average of malignant patient
   
   res_mean <- ggplot(m_train, aes(x=value,color=diabetes, fill=diabetes))+
-    
-    geom_histogram(aes(y=..density..), alpha=0.5, position="identity", bins=50)+
-    
-    geom_density(alpha=.2)+
-    
-    scale_color_manual(values=c("#15c3c9","#f87b72"))+
-    
-    scale_fill_manual(values=c("#61d4d6","#f5a7a1"))+
-    
+  geom_histogram(aes(y=..density..), alpha=0.5, position="identity", bins=50)+  
+  geom_density(alpha=.2)+
+  scale_color_manual(values=c("#15c3c9","#f87b72"))+ 
+  scale_fill_manual(values=c("#61d4d6","#f5a7a1"))+  
     geom_vline(data=m_new, aes(xintercept=value), 
                
                color=mal_col, size=1.5)+
